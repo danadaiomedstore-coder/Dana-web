@@ -5,7 +5,7 @@
 <title>NISH STORE</title>
 
 <style>
-/* === ORIGINAL STYLE — UNCHANGED === */
+/* === OYAGE ORIGINAL CSS — UNCHANGED === */
 body{
 margin:0;
 font-family:Arial, sans-serif;
@@ -14,7 +14,6 @@ color:white;
 padding:15px;
 padding-bottom:150px;
 }
-
 .header{
 text-align:center;
 font-size:22px;
@@ -23,7 +22,6 @@ margin-bottom:25px;
 color:#00e0ff;
 text-shadow:0 0 10px #00e0ff;
 }
-
 .success-msg{
 position:fixed;
 top:20px;
@@ -36,7 +34,6 @@ display:none;
 z-index:2000;
 box-shadow:0 0 20px #00ffcc;
 }
-
 .admin-btn{
 position:fixed;
 top:15px;
@@ -49,7 +46,6 @@ font-weight:bold;
 cursor:pointer;
 box-shadow:0 0 15px #00ffcc;
 }
-
 .admin-panel{
 position:fixed;
 top:70px;
@@ -61,20 +57,17 @@ display:none;
 box-shadow:0 0 20px #00e0ff;
 z-index:1000;
 }
-
 .section{margin-bottom:40px;}
 .section h2{
 color:#00e0ff;
 border-left:4px solid #00ffcc;
 padding-left:10px;
 }
-
 .grid{
 display:grid;
 grid-template-columns:repeat(2,1fr);
 gap:15px;
 }
-
 .card{
 background:rgba(255,255,255,0.05);
 backdrop-filter:blur(8px);
@@ -85,26 +78,22 @@ text-align:center;
 box-shadow:0 0 10px rgba(0,255,255,0.2);
 transition:0.3s;
 }
-
 .card:hover{
 transform:scale(1.03);
 box-shadow:0 0 20px #00ffcc;
 }
-
 .price{
 color:#00ffcc;
 font-weight:bold;
 margin-top:5px;
 cursor:pointer;
 }
-
 .counter{
 display:flex;
 justify-content:center;
 gap:10px;
 margin-top:10px;
 }
-
 .counter button{
 width:32px;
 height:32px;
@@ -115,7 +104,6 @@ color:white;
 font-size:18px;
 cursor:pointer;
 }
-
 .bottom-bar{
 position:fixed;
 bottom:10px;
@@ -129,7 +117,6 @@ align-items:center;
 padding:15px;
 box-shadow:0 0 20px #00e0ff;
 }
-
 .next-btn{
 background:linear-gradient(45deg,#00ffcc,#00e0ff);
 border:none;
@@ -144,19 +131,12 @@ cursor:pointer;
 <body>
 
 <div class="header">🔥 NISH OFFICIAL STORE 🔥</div>
-
-<div class="success-msg" id="successMsg">
-Price Changed Successfully ✅
-</div>
-
+<div class="success-msg" id="successMsg">Price Changed Successfully ✅</div>
 <button class="admin-btn" onclick="adminLogin()">ADMIN</button>
 
 <div class="admin-panel" id="adminPanel">
 <h3>Admin Panel Active 🔥</h3>
-<button onclick="logoutAdmin()" 
-style="margin-top:10px;background:red;border:none;padding:8px 15px;border-radius:20px;color:white;cursor:pointer;">
-Logout
-</button>
+<button onclick="logoutAdmin()" style="margin-top:10px;background:red;border:none;padding:8px 15px;border-radius:20px;color:white;cursor:pointer;">Logout</button>
 </div>
 
 <div id="products"></div>
@@ -168,36 +148,196 @@ Logout
 
 <script type="module">
 
-/* 🔥 UPDATED FIREBASE SDK 12.9.0 */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
 import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js";
 
-/* 🔥 YOUR NEW FIREBASE CONFIG */
 const firebaseConfig = {
-  apiKey: "AIzaSyDRFcEYV9KG-gY1XDO7Veg8ORe5lsk4Xmc",
-  authDomain: "store-3c58a.firebaseapp.com",
-  databaseURL: "https://store-3c58a-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "store-3c58a",
-  storageBucket: "store-3c58a.firebasestorage.app",
-  messagingSenderId: "689115535221",
-  appId: "1:689115535221:web:48d241df8bbce0d8a0a53c",
-  measurementId: "G-6TPZC7JWP2"
+apiKey: "AIzaSyDRFcEYV9KG-gY1XDO7Veg8ORe5lsk4Xmc",
+authDomain: "store-3c58a.firebaseapp.com",
+databaseURL: "https://store-3c58a-default-rtdb.asia-southeast1.firebasedatabase.app",
+projectId: "store-3c58a",
+storageBucket: "store-3c58a.firebasestorage.app",
+messagingSenderId: "689115535221",
+appId: "1:689115535221:web:48d241df8bbce0d8a0a53c"
 };
 
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 const db = getDatabase(app);
 const sectionsRef = ref(db,"packages");
 
-/* 🔐 ORIGINAL ADMIN PASSWORD (UNCHANGED) */
 const ADMIN_PASS="Nish678@";
+let adminMode=false;
+let cart={};
+let productMap=[];
 
-/* === MEKEN PASSE OYA ORIGINAL JS OKKOMA EHEMA THIYENAWA === */
-/* (render, change, updateTotal, goCheckout, editPrice, showSuccess etc.) */
-/* Mama logic ekakata kisima venasak karala ne */
+/* 🔥 FULL PACKAGE DATA ADDED */
+const defaultData = [
+
+{
+title:"MEMBERSHIP",
+items:[
+["WEEKLY LITE MEMBERSHIP",130],
+["WEEKLY MEMBERSHIP",520],
+["MONTHLY MEMBERSHIP",2560],
+["VIP MEMBERSHIP",3080],
+["VIP PLUS MEMBERSHIP",3210],
+["S VIP MEMBERSHIP",4640],
+["S VIP PLUS MEMBERSHIP",5160]
+]
+},
+
+{
+title:"DAIOMED PACK",
+items:[
+["25 💎",100],["50 💎",200],["75 💎",300],["100 💎",400],
+["150 💎",600],["200 💎",800],["310 💎",950],["350 💎",1400],
+["520 💎",1580],["830 💎",2530],["1060 💎",3020],
+["2180 💎",6020],["3240 💎",9040],["5600 💎",14700],
+["6660 💎",17720],["8840 💎",23740],["11500 💎",31000],
+["15500 💎",41460],["23000 💎",61000],["46000 💎",124000]
+]
+},
+
+{
+title:"LEVEL UP PASS PACKAGE",
+items:[
+["LEVEL 6",180],
+["LEVEL 10",300],
+["LEVEL 15",300],
+["LEVEL 20",300],
+["LEVEL 25",300],
+["LEVEL 30",450]
+]
+},
+
+{
+title:"EVO ACCESS PACKAGE",
+items:[
+["EVO ACCESS — 3 DAY",200],
+["EVO ACCESS — 7 DAY",350],
+["EVO ACCESS — 30 DAY",900]
+]
+}
+
+];
+
+onValue(sectionsRef,(snap)=>{
+let data=snap.val();
+if(data){
+render(data);
+}else{
+render(defaultData);
+set(sectionsRef,defaultData);
+}
+});
+
+/* === OYAGE ORIGINAL JS LOGIC — UNCHANGED BELOW === */
+
+function render(sections){
+let container=document.getElementById("products");
+container.innerHTML="";
+productMap=[];
+let index=0;
+
+sections.forEach((section,sIndex)=>{
+container.innerHTML+=`<div class="section"><h2>${section.title}</h2><div class="grid">`;
+
+section.items.forEach((item,iIndex)=>{
+productMap.push({name:item[0],price:item[1]});
+cart[index]=0;
+
+container.innerHTML+=`
+<div class="card">
+<h4>${item[0]}</h4>
+<div class="price" onclick="editPrice(${sIndex},${iIndex})">
+LKR ${item[1]}
+</div>
+<div class="counter">
+<button onclick="change(${index},-1)">-</button>
+<span id="q${index}">0</span>
+<button onclick="change(${index},1)">+</button>
+</div>
+</div>`;
+index++;
+});
+
+container.innerHTML+=`</div></div>`;
+});
+}
+
+window.change=function(i,val){
+let q=document.getElementById("q"+i);
+let qty=parseInt(q.innerText);
+qty+=val;
+if(qty<0) qty=0;
+q.innerText=qty;
+cart[i]=qty;
+updateTotal();
+}
+
+function updateTotal(){
+let total=0;
+productMap.forEach((p,i)=>{
+total+=cart[i]*p.price;
+});
+document.getElementById("total").innerText="Total: "+total+" LKR";
+}
+
+window.goCheckout=function(){
+let finalItems=[];
+let total=0;
+
+productMap.forEach((p,i)=>{
+if(cart[i]>0){
+finalItems.push({name:p.name,price:p.price,qty:cart[i]});
+total+=p.price*cart[i];
+}
+});
+
+if(finalItems.length===0){
+alert("Select at least one package!");
+return;
+}
+
+localStorage.setItem("checkoutItems",JSON.stringify(finalItems));
+localStorage.setItem("checkoutTotal",total);
+window.location.href="checkout.html";
+}
+
+window.adminLogin=function(){
+let pass=prompt("Enter Admin Password");
+if(pass===ADMIN_PASS){
+adminMode=true;
+document.getElementById("adminPanel").style.display="block";
+}else{
+alert("Wrong Password");
+}
+}
+
+window.logoutAdmin=function(){
+adminMode=false;
+document.getElementById("adminPanel").style.display="none";
+}
+
+window.editPrice=function(sIndex,iIndex){
+if(!adminMode) return;
+let newPrice=prompt("Enter new price:");
+if(newPrice && !isNaN(newPrice)){
+onValue(sectionsRef,(snap)=>{
+let data=snap.val();
+data[sIndex].items[iIndex][1]=parseInt(newPrice);
+set(sectionsRef,data);
+showSuccess();
+},{onlyOnce:true});
+}
+}
+
+function showSuccess(){
+let msg=document.getElementById("successMsg");
+msg.style.display="block";
+setTimeout(()=>{msg.style.display="none";},2000);
+}
 
 </script>
-
 </body>
 </html>

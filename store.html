@@ -11,243 +11,204 @@ font-family:Arial, sans-serif;
 background:linear-gradient(135deg,#06142e,#020d1f);
 color:white;
 padding:15px;
-padding-bottom:150px;
+padding-bottom:120px;
 }
+
 .header{
 text-align:center;
-font-size:22px;
+font-size:26px;
 font-weight:bold;
-margin-bottom:25px;
+margin-bottom:20px;
 color:#00e0ff;
-text-shadow:0 0 10px #00e0ff;
+text-shadow:0 0 15px #00e0ff;
 }
+
+.section{
+margin-bottom:25px;
+}
+
+.section h2{
+color:#00ffcc;
+margin-bottom:10px;
+border-bottom:1px solid #00ffcc;
+padding-bottom:5px;
+}
+
+.pack{
+background:rgba(255,255,255,0.05);
+padding:12px;
+border-radius:10px;
+margin:8px 0;
+cursor:pointer;
+border:1px solid rgba(255,255,255,0.1);
+transition:0.3s;
+}
+
+.pack:hover{
+background:rgba(0,255,255,0.1);
+}
+
+.selected{
+border:2px solid #00ffcc;
+background:rgba(0,255,255,0.2);
+}
+
+.next-btn{
+position:fixed;
+bottom:20px;
+left:50%;
+transform:translateX(-50%);
+background:linear-gradient(45deg,#00e0ff,#00ffcc);
+border:none;
+padding:14px 40px;
+border-radius:30px;
+font-size:18px;
+font-weight:bold;
+cursor:pointer;
+box-shadow:0 0 20px #00ffcc;
+}
+
 .admin-btn{
 position:fixed;
 top:15px;
 right:15px;
-background:linear-gradient(45deg,#00e0ff,#00ffcc);
+background:#00ffcc;
 border:none;
-padding:10px 18px;
-border-radius:25px;
-font-weight:bold;
-cursor:pointer;
-box-shadow:0 0 15px #00ffcc;
-}
-.section{margin-bottom:40px;}
-.section h2{
-color:#00e0ff;
-border-left:4px solid #00ffcc;
-padding-left:10px;
-}
-.grid{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:15px;
-}
-.card{
-background:rgba(255,255,255,0.05);
-padding:15px;
+padding:8px 15px;
 border-radius:20px;
-text-align:center;
-}
-.price{
-color:#00ffcc;
 font-weight:bold;
-margin-top:5px;
 cursor:pointer;
 }
-.counter{
-display:flex;
-justify-content:center;
-gap:10px;
-margin-top:10px;
-}
-.counter button{
-width:32px;
-height:32px;
-border:none;
-border-radius:50%;
-background:#00c2d1;
-color:white;
-font-size:18px;
-cursor:pointer;
-}
-.bottom-bar{
+
+.admin-panel{
 position:fixed;
-bottom:10px;
-left:10px;
-right:10px;
-background:black;
-border-radius:30px;
-display:flex;
-justify-content:space-between;
-align-items:center;
+top:70px;
+right:15px;
+background:#111;
 padding:15px;
+border-radius:10px;
+width:240px;
+display:none;
+max-height:400px;
+overflow:auto;
+box-shadow:0 0 20px #00ffcc;
+z-index:1000;
 }
-.next-btn{
-background:linear-gradient(45deg,#00ffcc,#00e0ff);
+
+.admin-panel h3{
+margin-top:0;
+color:#00ffcc;
+}
+
+.admin-panel input{
+width:100%;
+margin:5px 0 10px 0;
+padding:6px;
+border-radius:5px;
 border:none;
-padding:10px 25px;
-border-radius:25px;
-font-weight:bold;
-cursor:pointer;
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">🔥 DANA OFFICIAL STORE 🔥</div>
+<div class="header">DANA STORE</div>
+
 <button class="admin-btn" onclick="adminLogin()">ADMIN</button>
 
-<div id="products"></div>
-
-<div class="bottom-bar">
-<div id="total">Total: 0 LKR</div>
-<button class="next-btn">NEXT</button>
+<div class="admin-panel" id="adminPanel">
+<h3>Admin Panel</h3>
+<div id="adminContent"></div>
 </div>
 
-<script type="module">
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyDRFcEYV9KG-gY1XDO7Veg8ORe5lsk4Xmc",
-  authDomain: "store-3c58a.firebaseapp.com",
-  databaseURL: "https://store-3c58a-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "store-3c58a",
-  storageBucket: "store-3c58a.appspot.com",
-  messagingSenderId: "689115535221",
-  appId: "1:689115535221:web:48d241df8bbce0d8a0a53c"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-const sectionsRef = ref(db,"packages");
-
-const ADMIN_PASS="DANA6893@";
-let adminMode=false;
-let cart={};
-let productMap=[];
-
-const defaultData=[
-
-{title:"MEMBERSHIP",items:[
-["WEEKLY LITE MEMBERSHIP",130],
-["WEEKLY MEMBERSHIP",520],
-["MONTHLY MEMBERSHIP",2560],
-["VIP MEMBERSHIP",3080],
-["VIP PLUS MEMBERSHIP",3210],
-["S VIP MEMBERSHIP",4640],
-["S VIP PLUS MEMBERSHIP",5160]
-]},
-
-{title:"DAIOMED PACK",items:[
-["25 💎",100],["50 💎",200],["75 💎",300],["100 💎",400],
-["150 💎",600],["200 💎",800],["310 💎",950],["350 💎",1400],
-["520 💎",1580],["830 💎",2530],["1060 💎",3020],
-["2180 💎",6020],["3240 💎",9040],["5600 💎",14700],
-["6660 💎",17720],["8840 💎",23740],["11500 💎",31000],
-["15500 💎",41460],["23000 💎",61000],["46000 💎",124000]
-]},
-
-{title:"LEVEL UP PASS",items:[
-["LEVEL 6",180],
-["LEVEL 10",300],
-["LEVEL 15",300],
-["LEVEL 20",3000],
-["LEVEL 25",300],
-["LEVEL 30",450]
-]},
-
-{title:"EVO ACCESS",items:[
-["EVO ACCESS — 3 DAY",200],
-["EVO ACCESS — 7 DAY",350],
-["EVO ACCESS — 30 DAY",900]
-]}
-
-];
-
-onValue(sectionsRef,(snap)=>{
-let data=snap.val();
-if(data){
-render(data);
-}else{
-render(defaultData);
-set(sectionsRef,defaultData);
-}
-});
-
-function render(sections){
-let container=document.getElementById("products");
-container.innerHTML="";
-productMap=[];
-let index=0;
-
-sections.forEach((section,sIndex)=>{
-container.innerHTML+=`<div class="section"><h2>${section.title}</h2><div class="grid">`;
-
-section.items.forEach((item,iIndex)=>{
-productMap.push({name:item[0],price:item[1]});
-cart[index]=0;
-
-container.innerHTML+=`
-<div class="card">
-<h4>${item[0]}</h4>
-<div class="price" onclick="editPrice(${sIndex},${iIndex})">LKR ${item[1]}</div>
-<div class="counter">
-<button onclick="change(${index},-1)">-</button>
-<span id="q${index}">0</span>
-<button onclick="change(${index},1)">+</button>
+<!-- MEMBERSHIP -->
+<div class="section">
+<h2>MEMBERSHIP</h2>
+<div class="pack" onclick="selectPack(this)">WEEKLY LITE MEMBERSHIP - LKR 130</div>
+<div class="pack" onclick="selectPack(this)">WEEKLY MEMBERSHIP - LKR 520</div>
+<div class="pack" onclick="selectPack(this)">MONTHLY MEMBERSHIP - LKR 2560</div>
+<div class="pack" onclick="selectPack(this)">VIP MEMBERSHIP - LKR 3080</div>
+<div class="pack" onclick="selectPack(this)">VIP PLUS MEMBERSHIP - LKR 3210</div>
+<div class="pack" onclick="selectPack(this)">S VIP MEMBERSHIP - LKR 4640</div>
+<div class="pack" onclick="selectPack(this)">S VIP PLUS MEMBERSHIP - LKR 5160</div>
 </div>
-</div>`;
-index++;
-});
-container.innerHTML+=`</div></div>`;
-});
+
+<!-- DAIOMED PACK -->
+<div class="section">
+<h2>DAIOMED PACK</h2>
+<div class="pack" onclick="selectPack(this)">25 💎 – LKR 100</div>
+<div class="pack" onclick="selectPack(this)">50 💎 – LKR 200</div>
+<div class="pack" onclick="selectPack(this)">75 💎 – LKR 300</div>
+<div class="pack" onclick="selectPack(this)">100 💎 – LKR 400</div>
+<div class="pack" onclick="selectPack(this)">150 💎 – LKR 600</div>
+<div class="pack" onclick="selectPack(this)">200 💎 – LKR 800</div>
+</div>
+
+<!-- LEVEL UP PASS -->
+<div class="section">
+<h2>LEVEL UP PASS PACKAGE</h2>
+<div class="pack" onclick="selectPack(this)">LEVEL 6 – 180 LKR</div>
+<div class="pack" onclick="selectPack(this)">LEVEL 10 – 300 LKR</div>
+<div class="pack" onclick="selectPack(this)">LEVEL 15 – 300 LKR</div>
+<div class="pack" onclick="selectPack(this)">LEVEL 20 – 300 LKR</div>
+<div class="pack" onclick="selectPack(this)">LEVEL 25 – 300 LKR</div>
+<div class="pack" onclick="selectPack(this)">LEVEL 30 – 450 LKR</div>
+</div>
+
+<!-- EVO ACCESS -->
+<div class="section">
+<h2>EVO ACCESS PACKAGE</h2>
+<div class="pack" onclick="selectPack(this)">3 DAY – LKR 200</div>
+<div class="pack" onclick="selectPack(this)">7 DAY – LKR 350</div>
+<div class="pack" onclick="selectPack(this)">30 DAY – LKR 900</div>
+</div>
+
+<button class="next-btn" onclick="goNext()">NEXT</button>
+
+<script>
+let selected = null;
+
+function selectPack(el){
+document.querySelectorAll('.pack').forEach(p=>p.classList.remove('selected'));
+el.classList.add('selected');
+selected = el.innerText;
 }
 
-window.change=function(i,val){
-let q=document.getElementById("q"+i);
-let qty=parseInt(q.innerText);
-qty+=val;
-if(qty<0) qty=0;
-q.innerText=qty;
-cart[i]=qty;
-updateTotal();
+function goNext(){
+if(!selected){
+alert("Please Select Pack ⚠️");
+return;
+}
+alert("Selected: " + selected);
+window.location.href="checkout.html";
 }
 
-function updateTotal(){
-let total=0;
-productMap.forEach((p,i)=>{
-total+=cart[i]*p.price;
-});
-document.getElementById("total").innerText="Total: "+total+" LKR";
-}
-
-window.adminLogin=function(){
-let pass=prompt("Enter Admin Password");
-if(pass===ADMIN_PASS){
-adminMode=true;
-alert("Admin Mode Active 🔥");
+function adminLogin(){
+let pass = prompt("Enter Admin Password:");
+if(pass === "DANA6893@"){
+document.getElementById("adminPanel").style.display="block";
+loadAdmin();
 }else{
-alert("Wrong Password");
+alert("Wrong Password!");
 }
 }
 
-window.editPrice=function(sIndex,iIndex){
-if(!adminMode) return;
-let newPrice=prompt("Enter new price:");
-if(newPrice && !isNaN(newPrice)){
-onValue(sectionsRef,(snap)=>{
-let data=snap.val();
-data[sIndex].items[iIndex][1]=parseInt(newPrice);
-set(sectionsRef,data);
-},{onlyOnce:true});
-}
+function loadAdmin(){
+let packs = document.querySelectorAll('.pack');
+let adminDiv = document.getElementById("adminContent");
+adminDiv.innerHTML="";
+packs.forEach((p,i)=>{
+adminDiv.innerHTML += `
+<label>Pack ${i+1}</label>
+<input type="text" value="${p.innerText}" onchange="updatePack(${i},this.value)">
+`;
+});
 }
 
+function updatePack(index,value){
+document.querySelectorAll('.pack')[index].innerText=value;
+alert("Price Changed Successfully ✅");
+}
 </script>
 
 </body>

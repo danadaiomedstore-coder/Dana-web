@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout</title>
+
+<style>
+body{margin:0;font-family:Arial;background:#000;color:white;padding:15px;}
+h2{text-align:center;}
+.box{background:#111;padding:15px;border-radius:14px;margin:12px 0;
+box-shadow:0 0 15px rgba(0,150,255,0.2);border:1px solid #1f1f1f;}
+.total{color:#00e5ff;font-weight:bold;text-align:right;font-size:18px;}
+button{width:100%;padding:14px;margin-top:15px;border:none;border-radius:12px;
+font-size:16px;font-weight:bold;cursor:pointer;
+background:linear-gradient(90deg,#00c6ff,#0072ff);color:white;}
+#contactBtn{display:none;background:linear-gradient(90deg,#25D366,#128C7E);}
+input{width:100%;padding:12px;margin-top:8px;border-radius:10px;border:none;
+background:#1a1a1a;color:white;}
+.warning{color:#ff3b3b;font-size:13px;text-align:center;margin-top:8px;}
+#successBox{display:none;position:fixed;top:50%;left:50%;
+transform:translate(-50%,-50%);background:#111;padding:25px;border-radius:15px;
+border:1px solid #00ff99;box-shadow:0 0 25px rgba(0,255,150,0.6);
+text-align:center;z-index:999;}
+</style>
+</head>
+<body>
+
+<h2>PAYMENT DETAIL</h2>
+
+<div id="summary"></div>
+<div class="box total" id="total"></div>
+
+<div class="box">
+🏦 <b>EZ CASH</b><br>
+EZ No: 0761723419
+</div>
+
+<div class="box">
+
+Player Name
+<input type="text" id="playerName">
+
+Player ID
+<input type="text" id="playerId">
+
+WhatsApp Number
+<input type="text" id="whatsapp">
+
+<br><br>
+📤 Upload Transfer Receipt
+<input type="file" id="receipt" accept="image/*">
+
+<button onclick="sendToTelegram()">ORDER SENDING</button>
+
+<div class="warning">
+EZ Cash ගෙවීමේදී රු.20 වැඩියෙන් දැමීම අනිවාරය වේ.
+</div>
+
+<button id="contactBtn" onclick="contactAdmin()">CONTACT ADMIN</button>
+
+</div>
+
+<div id="successBox">
+<h3>✅ Order Sent Successfully!</h3>
+<p id="orderDisplay"></p>
+</div>
+
+<script>
+
+/* LOAD SELECTED ITEMS */
+let checkoutItems = JSON.parse(localStorage.getItem("checkoutItems")) || [];
+let total = parseInt(localStorage.getItem("checkoutTotal")) || 0;
+
+let summary=document.getElementById("summary");
+
+checkoutItems.forEach(item=>{
+let line=document.createElement("div");
+line.className="box";
+line.innerHTML=`${item.name} x ${item.qty} = ${item.price*item.qty} LKR`;
+summary.appendChild(line);
+});
+
+document.getElementById("total").innerText="TOTAL: "+total+" LKR";
+
+let adminNumber="94762514994";
+let lastOrderId="";
+
+/* SEND TO TELEGRAM */
+async function sendToTelegram(){
+
+let name=document.getElementById("playerName").value.trim();
+let id=document.getElementById("playerId").value.trim();
+let wp=document.getElementById("whatsapp").value.trim();
+let receipt=document.getElementById("receipt");
+
+if(!name||!id||!wp){
+alert("Fill all fields!");
+return;
+}
+
+if(receipt.files.length==0){
+alert("Upload receipt!");
+return;
+}
+
+if(wp.startsWith("0")){
+wp="94"+wp.substring(1);
+}
+
+let orderId="ORD"+Date.now();
+lastOrderId=orderId;
+
+let message=
+"🛒 NEW ORDER\n\n"+
+"🆔 Order ID: "+orderId+"\n"+
+"👤 Name: "+name+"\n"+
+"🎮 Player ID: "+id+"\n"+
+"📲 Customer WhatsApp: https://wa.me/"+wp+"\n\n";
+
+checkoutItems.forEach(item=>{
+message+=`${item.name} x ${item.qty} = ${item.price*item.qty} LKR\n`;
+});
+
+message+="\n💰 Total: "+total+" LKR (+20 EZ Fee)";
+
+let botToken="8279469542:AAGnxFvyiItJYjD5nUN7V5P44a0ebiYzEv4";
+let chatId="7951593603";
+
+let formData=new FormData();
+formData.append("chat_id",chatId);
+formData.append("caption",message);
+formData.append("photo",receipt.files[0]);
+
+await fetch("https://api.telegram.org/bot"+botToken+"/sendPhoto",{
+method:"POST",
+body:formData
+});
+
+/* SUCCESS */
+document.getElementById("orderDisplay").innerText="Order ID: "+orderId;
+document.getElementById("successBox").style.display="block";
+document.getElementById("contactBtn").style.display="block";
+
+setTimeout(()=>{
+document.getElementById("successBox").style.display="none";
+},3000);
+
+}
+
+/* WHATSAPP SEND */
+function contactAdmin(){
+
+let name=document.getElementById("playerName").value.trim();
+let id=document.getElementById("playerId").value.trim();
+let wp=document.getElementById("whatsapp").value.trim();
+
+if(wp.startsWith("0")){
+wp="94"+wp.substring(1);
+}
+
+let fullMessage=
+"🛒 *ORDER CONFIRMATION*\n\n"+
+"🆔 Order ID: "+lastOrderId+"\n"+
+"👤 Name: "+name+"\n"+
+"🎮 Player ID: "+id+"\n"+
+"📲 Customer WhatsApp: https://wa.me/"+wp+"\n\n";
+
+checkoutItems.forEach(item=>{
+fullMessage+=`${item.name} x ${item.qty} = ${item.price*item.qty} LKR\n`;
+});
+
+fullMessage+="\n💰 *Total:* "+total+" LKR (+20 EZ Fee)";
+
+window.location.href=
+"https://wa.me/"+adminNumber+"?text="+encodeURIComponent(fullMessage);
+
+}
+
+</script>
+
+</body>
+</html>
